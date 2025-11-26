@@ -5,12 +5,20 @@
 			"referenceName": "BDTuristikBi",
 			"type": "LinkedServiceReference"
 		},
+		"parameters": {
+			"p_tabla": {
+				"type": "string"
+			}
+		},
 		"annotations": [],
 		"type": "SqlServerTable",
 		"schema": [],
 		"typeProperties": {
 			"schema": "raw",
-			"table": "ozytrip_VentasMetodoPago"
+			"table": {
+				"value": "@dataset().p_tabla",
+				"type": "Expression"
+			}
 		}
 	},
 	"type": "Microsoft.DataFactory/factories/datasets"

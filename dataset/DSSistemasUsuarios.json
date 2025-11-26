@@ -1,0 +1,16 @@
+{
+	"name": "DSSistemasUsuarios",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "BDSistemas",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "centralusuarios",
+			"table": "Usuarios"
+		}
+	}
+}
