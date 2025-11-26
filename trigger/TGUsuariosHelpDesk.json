@@ -1,0 +1,25 @@
+{
+	"name": "TGUsuariosHelpDesk",
+	"properties": {
+		"description": "Actualizar Tabla Usuarios y HelpDesk en TuristikBI",
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "UsuariosHelpDesk",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 2,
+				"startTime": "2025-11-26T15:00:00",
+				"timeZone": "Pacific SA Standard Time"
+			}
+		}
+	}
+}
