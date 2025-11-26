@@ -1,0 +1,323 @@
+{
+	"name": "pipeline1",
+	"properties": {
+		"activities": [
+			{
+				"name": "Obtener token",
+				"type": "WebActivity",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"headers": {
+						"Content-Type": {
+							"value": "application/x-www-form-urlencoded",
+							"type": "Expression"
+						}
+					},
+					"url": "https://app01.dev.bmore.cl:44316/connect/token",
+					"body": {
+						"value": "grant_type=client_credentials",
+						"type": "Expression"
+					},
+					"authentication": {
+						"type": "Basic",
+						"username": "ozy_trip_etl_swagger",
+						"password": {
+							"type": "SecureString",
+							"value": "**********"
+						}
+					}
+				}
+			},
+			{
+				"name": "Var Token",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Obtener token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Var Token",
+					"value": {
+						"value": "@activity('Obtener token').output.access_token",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copiar Datos API SQL",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Var Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Authorization": {
+								"value": "@concat('Bearer ',variables('Var Token'))",
+								"type": "Expression"
+							},
+							"Accept": {
+								"value": "application/json",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "SqlServerSink",
+						"writeBehavior": "insert",
+						"sqlWriterUseTableLock": false
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DSApiPruebaOzyTrip",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_endpoint": {
+								"value": "@concat(\npipeline().parameters.p_modulo,'/',\npipeline().parameters.p_fecha,\n'/true')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DSBdTuristikBi",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Var Error API SQL",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Copiar Datos API SQL",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Var Error",
+					"value": {
+						"value": "@concat(\n  'Paso: Copiar Datos Ventas OzyTrip - Error: ',\n  replace(\n    replace(\n      replace(\n        substring(\n          activity('Copiar Datos API SQL').error.Message,\n          add(indexOf(activity('Copiar Datos API SQL').error.Message, 'Message='), 8),\n          sub(\n            indexOf(activity('Copiar Datos API SQL').error.Message, ',Source='),\n            add(indexOf(activity('Copiar Datos API SQL').error.Message, 'Message='), 8)\n          )\n        ),\n        '\\n', ' '\n      ),\n      '\\r', ' '\n    ),\n    '\"', ''\n  )\n)\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Enviar Error Copiar Datos",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Var Error API SQL",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://prod-14.chilecentral.logic.azure.com:443/workflows/9e3a00ca28cf4a4db3c001a96f107a6b/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=vEoXPLtmcD5b4D6KJTAQSkh_sfe86WEmmPsgAjq4J10",
+					"body": {
+						"value": "{\n    \"message\" : \"@{replace(replace(replace(variables('Var Error'), '\\n', ' '), '\\r', ' '), '\\\"', '')}\",\n    \"dataFactoryName\" : \"@{pipeline().DataFactory}\", \n    \"pipelineName\" : \"@{pipeline().Pipeline}\",\n    \"MensajeError\": \"@{variables('Var Error')}\",\n    \"Modulo\":\"@{pipeline().parameters.p_modulo}\",\n    \"Hora\":\"@{formatDateTime(addHours(utcNow(), -3), 'yyyy-MM-dd HH:mm:ss')}\"\n   }",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Var Error Token",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Obtener token",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "Var Error",
+					"value": {
+						"value": "@concat(\n  'Paso: Obtener Token - Error: ',\n  coalesce(\n    string(activity('Obtener token').output.error),\n    string(activity('Obtener token').Error.ErrorCode)\n  )\n)\n",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Enviar Error Token",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Var Error Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"method": "POST",
+					"url": "https://prod-14.chilecentral.logic.azure.com:443/workflows/9e3a00ca28cf4a4db3c001a96f107a6b/triggers/When_an_HTTP_request_is_received/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2FWhen_an_HTTP_request_is_received%2Frun&sv=1.0&sig=vEoXPLtmcD5b4D6KJTAQSkh_sfe86WEmmPsgAjq4J10",
+					"body": {
+						"value": "{\n    \"message\" :\"@{variables('Var Error')}\",\n    \"dataFactoryName\" : \"@{pipeline().DataFactory}\", \n    \"pipelineName\" : \"@{pipeline().Pipeline}\",\n    \"MensajeError\": \"@{variables('Var Error')}\",\n    \"Modulo\":\"@{pipeline().parameters.p_modulo}\",\n    \"Hora\":\"@{formatDateTime(addHours(utcNow(), -3), 'yyyy-MM-dd HH:mm:ss')}\"\n   }",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copiar API A Parquet",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Var Token",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "RestSource",
+						"httpRequestTimeout": "00:01:40",
+						"requestInterval": "00.00:00:00.010",
+						"requestMethod": "GET",
+						"additionalHeaders": {
+							"Authorization": {
+								"value": "@concat('Bearer ',variables('Var Token'))",
+								"type": "Expression"
+							},
+							"Accept": {
+								"value": "application/json",
+								"type": "Expression"
+							}
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "DSApiPruebaOzyTrip",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_endpoint": {
+								"value": "@concat(\npipeline().parameters.p_modulo,'/',\npipeline().parameters.p_fecha,\n'/true')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "DSArchivoParquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"p_nombrearchivo": {
+								"value": "@concat(pipeline().parameters.p_modulo,'_',pipeline().parameters.p_fecha,'.parquet')",
+								"type": "Expression"
+							}
+						}
+					}
+				]
+			}
+		],
+		"parameters": {
+			"p_modulo": {
+				"type": "string"
+			},
+			"p_fecha": {
+				"type": "string"
+			}
+		},
+		"variables": {
+			"Var Token": {
+				"type": "String"
+			},
+			"Var Error": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2025-11-21T19:30:16Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
