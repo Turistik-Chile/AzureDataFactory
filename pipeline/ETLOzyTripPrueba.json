@@ -1,5 +1,5 @@
 {
-	"name": "pipeline1",
+	"name": "ETLOzyTripPrueba",
 	"properties": {
 		"activities": [
 			{
@@ -119,7 +119,13 @@
 				"outputs": [
 					{
 						"referenceName": "DSBdTuristikBi",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"p_tabla": {
+								"value": "@pipeline().parameters.p_modulo",
+								"type": "Expression"
+							}
+						}
 					}
 				]
 			},
