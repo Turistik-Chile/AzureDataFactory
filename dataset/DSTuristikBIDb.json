@@ -1,0 +1,24 @@
+{
+	"name": "DSTuristikBIDb",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "BDTuristikBi",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_tabla": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "raw",
+			"table": {
+				"value": "@dataset().p_tabla",
+				"type": "Expression"
+			}
+		}
+	}
+}
