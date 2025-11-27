@@ -3,10 +3,7 @@
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "BDTuristikBi",
-			"type": "LinkedServiceReference",
-			"parameters": {
-				"p_nombreBD": "sqldb-analytics-dev"
-			}
+			"type": "LinkedServiceReference"
 		},
 		"parameters": {
 			"p_tabla": {
