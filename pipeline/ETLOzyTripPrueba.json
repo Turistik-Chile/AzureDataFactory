@@ -118,7 +118,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "DSBdTuristikBi",
+						"referenceName": "DSTuristikBIDb",
 						"type": "DatasetReference",
 						"parameters": {
 							"p_tabla": {
