@@ -1,0 +1,29 @@
+{
+	"name": "DSArchivoParquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LSBlobStorageTkData",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"p_nombrearchivo": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"fileName": {
+					"value": "@dataset().p_nombrearchivo",
+					"type": "Expression"
+				},
+				"container": "parquet-ozy-trip"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}
