@@ -1,0 +1,24 @@
+{
+	"name": "TgUsuariosHelpDesk",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Started",
+		"pipelines": [
+			{
+				"pipelineReference": {
+					"referenceName": "UsuariosHelpDesk2",
+					"type": "PipelineReference"
+				}
+			}
+		],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Hour",
+				"interval": 2,
+				"startTime": "2025-11-28T15:43:00",
+				"timeZone": "Pacific SA Standard Time"
+			}
+		}
+	}
+}
