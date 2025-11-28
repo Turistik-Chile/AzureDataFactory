@@ -1,9 +1,0 @@
-{
-	"name": "ADF-Turistik-Pruebas",
-	"location": "chilecentral",
-	"identity": {
-		"type": "SystemAssigned",
-		"principalId": "fda16e47-2461-41ed-9977-19bc375bda73",
-		"tenantId": "84331a24-3981-4bea-8b00-06f655a697d3"
-	}
-}

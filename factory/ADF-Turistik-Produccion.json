@@ -1,9 +1,0 @@
-{
-	"name": "ADF-Turistik-Produccion",
-	"location": "chilecentral",
-	"identity": {
-		"type": "SystemAssigned",
-		"principalId": "b640b188-9ab4-47f5-abeb-5e20f405d641",
-		"tenantId": "84331a24-3981-4bea-8b00-06f655a697d3"
-	}
-}
