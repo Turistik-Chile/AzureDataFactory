@@ -1,5 +1,5 @@
 {
-	"name": "TGHelpDeskUsuarios",
+	"name": "TgUsuariosHelpDesk",
 	"properties": {
 		"annotations": [],
 		"runtimeState": "Started",
@@ -16,7 +16,7 @@
 			"recurrence": {
 				"frequency": "Hour",
 				"interval": 2,
-				"startTime": "2025-11-27T16:00:00",
+				"startTime": "2025-11-28T15:43:00",
 				"timeZone": "Pacific SA Standard Time"
 			}
 		}
