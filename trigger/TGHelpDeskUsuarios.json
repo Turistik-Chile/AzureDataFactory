@@ -6,7 +6,7 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "UsuariosHelpDesk",
+					"referenceName": "UsuariosHelpDesk2",
 					"type": "PipelineReference"
 				}
 			}
