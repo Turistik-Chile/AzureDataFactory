@@ -1,0 +1,12 @@
+{
+	"name": "Kv_TuristikBi",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"description": "Contraseña de Turistik Bi",
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://kv-turistik-dev.vault.azure.net/"
+		}
+	}
+}
